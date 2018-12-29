@@ -83,7 +83,7 @@ func (i *Inferno) Spread() {
 }
 
 func (i *Inferno) Render() {
-	rc := bytes.Buffer{}
+	rc := &bytes.Buffer{}
 
 	// clear screen and send cursor to upper left corner
 	rc.Write([]byte("\x1b[48;2;0;0;0m"))
@@ -105,7 +105,7 @@ func (i *Inferno) Render() {
 
 	i.Renders++
 
-	io.Copy(os.Stdout, &rc)
+	io.Copy(os.Stdout, rc)
 	rc.Reset()
 	time.Sleep(100 * time.Millisecond)
 }
@@ -162,8 +162,8 @@ func fire(ctx context.Context, width int, height int) chan Dimensions {
 }
 
 func main() {
-
 	rand.Seed(time.Now().UnixNano())
+
 	width, height, err := terminal.GetSize(0)
 	if err != nil {
 		log.Fatal(err)
@@ -196,5 +196,4 @@ mainloop:
 	<-dims
 	os.Stdout.Write([]byte("\x1b[48;2;0;0;0m"))
 	os.Stdout.Write([]byte("\x1b[;f"))
-
 }
