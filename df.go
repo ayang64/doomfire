@@ -181,6 +181,11 @@ func main() {
 mainloop:
 	for {
 		select {
+		case <-dims:
+			// received signal indicating flame goroutine has ended.
+			// we can safely exit now.
+			break mainloop
+
 		case sig := <-sigs:
 			switch sig {
 			case syscall.SIGWINCH:
@@ -188,12 +193,10 @@ mainloop:
 				dims <- Dimensions{Width: width, Height: height}
 			case syscall.SIGINT:
 				cancel()
-				break mainloop
 			}
 		}
 	}
 
-	<-dims
 	os.Stdout.Write([]byte("\x1b[48;2;0;0;0m"))
 	os.Stdout.Write([]byte("\x1b[;f"))
 }
