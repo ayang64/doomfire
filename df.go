@@ -101,13 +101,13 @@ func (i *Inferno) Render() {
 		for x := 0; x < i.width; x++ {
 
 			// if necessary, change foreground color
-			if pos := (y * i.width) + x; pos > 0 && i.grid[pos] != i.grid[pos-1] {
+			if pos := (y * i.width) + x; true {
 				r, g, b := MapColor(i.grid[pos])
 				i.buffer.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm", r, g, b))
 			}
 
 			// if necessary, change background color
-			if pos := ((y + 1) * i.width) + x; i.grid[pos] != i.grid[pos-1] {
+			if pos := ((y + 1) * i.width) + x; true {
 				r, g, b := MapColor(i.grid[pos])
 				i.buffer.WriteString(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b))
 			}
