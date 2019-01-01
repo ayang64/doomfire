@@ -28,7 +28,7 @@ type Dimensions struct {
 }
 
 func MapColor(v int8) (uint8, uint8, uint8) {
-	cmap := [][3]uint8{{07, 07, 07},
+	cmap := [][3]uint8{{0x07, 0x07, 0x07},
 		{0x1f, 0x07, 0x07}, {0x2f, 0x0f, 0x07}, {0x47, 0x0f, 0x07}, {0x57, 0x17, 0x07}, {0x67, 0x1f, 0x07},
 		{0x77, 0x1f, 0x07}, {0x8f, 0x27, 0x07}, {0x9f, 0x2f, 0x07}, {0xaf, 0x3f, 0x07}, {0xbf, 0x47, 0x07},
 		{0xc7, 0x47, 0x07}, {0xdf, 0x4f, 0x07}, {0xdf, 0x57, 0x07}, {0xdf, 0x57, 0x07}, {0xd7, 0x5f, 0x07},
@@ -89,17 +89,15 @@ func (i *Inferno) Render() {
 	rc.Write([]byte("\x1b[48;2;0;0;0m"))
 	rc.Write([]byte("\x1b[;f"))
 
-	prev := int8(-1)
 	for y := 0; y < i.height; y++ {
 		for x := 0; x < i.width; x++ {
 			pos := (y * i.width) + x
 			// if the color has changed, send apropriate escape sequence
-			if i.grid[pos] != prev {
+			if pos > 0 && i.grid[pos] != i.grid[pos-1] {
 				r, g, b := MapColor(i.grid[pos])
 				rc.Write([]byte(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)))
 			}
 			rc.WriteString(" ")
-			prev = i.grid[pos]
 		}
 	}
 
