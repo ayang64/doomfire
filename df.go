@@ -69,6 +69,10 @@ func (i *Inferno) Spread() {
 				dst = 0
 			}
 
+			if end := (i.width * i.height) - 1; dst > end {
+				dst = end
+			}
+
 			i.grid[dst] = i.grid[src] - int8(rand.Intn(6)-1)
 
 			if i.grid[dst] > 35 {
