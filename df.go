@@ -19,6 +19,7 @@ type Inferno struct {
 	width   int
 	height  int
 	grid    []int8
+	buffer  *bytes.Buffer
 	Renders int
 }
 
@@ -87,28 +88,34 @@ func (i *Inferno) Spread() {
 }
 
 func (i *Inferno) Render() {
-	rc := &bytes.Buffer{}
-
 	// clear screen and send cursor to upper left corner
-	rc.Write([]byte("\x1b[48;2;0;0;0m"))
-	rc.Write([]byte("\x1b[;f"))
+	i.buffer.Write([]byte("\x1b[48;2;0;0;0m"))
+	i.buffer.Write([]byte("\x1b[38;2;255;255;255"))
+	i.buffer.Write([]byte("\x1b[;f"))
 
-	for y := 0; y < i.height; y++ {
+	for y := 0; y < i.height; y += 2 {
 		for x := 0; x < i.width; x++ {
-			pos := (y * i.width) + x
-			// if the color has changed, send apropriate escape sequence
-			if pos > 0 && i.grid[pos] != i.grid[pos-1] {
+
+			// if necessary, change foreground color
+			if pos := (y * i.width) + x; pos > 0 && i.grid[pos] != i.grid[pos-1] {
 				r, g, b := MapColor(i.grid[pos])
-				rc.Write([]byte(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)))
+				i.buffer.Write([]byte(fmt.Sprintf("\x1b[38;2;%d;%d;%dm", r, g, b)))
 			}
-			rc.WriteString(" ")
+
+			// if necessary, change background color
+			if pos := ((y + 1) * i.width) + x; i.grid[pos] != i.grid[pos-1] {
+				r, g, b := MapColor(i.grid[pos])
+				i.buffer.Write([]byte(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)))
+			}
+
+			i.buffer.WriteString("▀")
 		}
 	}
 
 	i.Renders++
 
-	io.Copy(os.Stdout, rc)
-	rc.Reset()
+	io.Copy(os.Stdout, i.buffer)
+	i.buffer.Reset()
 	time.Sleep(100 * time.Millisecond)
 }
 
@@ -122,6 +129,9 @@ func WithDimentions(width int, height int) func(*Inferno) error {
 
 func NewInferno(opts ...func(*Inferno) error) (*Inferno, error) {
 	rc := Inferno{}
+
+	rc.buffer = &bytes.Buffer{}
+
 	for _, opt := range opts {
 		if err := opt(&rc); err != nil {
 			return nil, err
@@ -173,9 +183,9 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	dims := fire(ctx, width, height)
+	dims := fire(ctx, width, height*2)
 
-	dims <- Dimensions{Width: width, Height: height}
+	dims <- Dimensions{Width: width, Height: height * 2}
 
 	sigs := make(chan os.Signal)
 	signal.Notify(sigs, syscall.SIGWINCH, syscall.SIGINT)
@@ -192,13 +202,13 @@ mainloop:
 			switch sig {
 			case syscall.SIGWINCH:
 				width, height, _ := terminal.GetSize(0)
-				dims <- Dimensions{Width: width, Height: height}
+				dims <- Dimensions{Width: width, Height: height * 2}
 			case syscall.SIGINT:
 				cancel()
 			}
 		}
 	}
 
-	os.Stdout.Write([]byte("\x1b[48;2;0;0;0m"))
-	os.Stdout.Write([]byte("\x1b[;f"))
+	os.Stdout.Write([]byte("\x1b[39;m"))
+	os.Stdout.Write([]byte("\x1b[49;m"))
 }
