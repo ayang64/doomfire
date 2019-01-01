@@ -15,6 +15,7 @@ type Flame struct {
 	grid    []int8
 	buffer  *bytes.Buffer
 	renders int
+	rand    *rand.Rand
 }
 
 type Dimensions struct {
@@ -73,7 +74,7 @@ func (i *Flame) Spread() {
 			// generate random number between [0, 6) and and subtract 3 from it.
 			// this biases the results to < 0 which shifts the direction of the
 			// flames to the left giving a wind effect.
-			dst := (src - i.width) + rand.Intn(6) - 3
+			dst := (src - i.width) + i.rand.Intn(6) - 3
 
 			// if destination is outside of the bounds of our display, skip it.
 			if start, end := (y-1)*i.width, y*i.width+i.width; dst < start || dst > end {
@@ -85,7 +86,7 @@ func (i *Flame) Spread() {
 			}
 
 			// sometimes the flames get a little more intense as they rise.
-			i.grid[dst] = i.grid[src] - int8(rand.Intn(6)-1)
+			i.grid[dst] = i.grid[src] - int8(i.rand.Intn(6)-1)
 
 			if i.grid[dst] > 35 {
 				i.grid[dst] = 35
@@ -140,6 +141,7 @@ func NewFlame(opts ...func(*Flame) error) (*Flame, error) {
 	rc := Flame{}
 
 	rc.buffer = &bytes.Buffer{}
+	rc.rand = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	for _, opt := range opts {
 		if err := opt(&rc); err != nil {

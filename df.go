@@ -3,11 +3,9 @@ package main
 import (
 	"context"
 	"log"
-	"math/rand"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"github.com/ayang64/doomfire/inferno"
 
@@ -46,42 +44,38 @@ func fire(ctx context.Context) chan inferno.Dimensions {
 	return rc
 }
 
-func main() {
-	rand.Seed(time.Now().UnixNano())
-
+func run() error {
 	width, height, err := terminal.GetSize(0)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-
 	dims := fire(ctx)
-
 	dims <- inferno.Dimensions{Width: width, Height: height * 2}
 
 	sigs := make(chan os.Signal)
 	signal.Notify(sigs, syscall.SIGWINCH, syscall.SIGINT)
-
-mainloop:
-	for {
-		select {
-		case <-dims:
-			// received signal indicating flame goroutine has ended.
-			// we can safely exit now.
-			break mainloop
-
-		case sig := <-sigs:
+	go func() {
+		for sig := range sigs {
 			switch sig {
 			case syscall.SIGWINCH:
 				width, height, _ := terminal.GetSize(0)
 				dims <- inferno.Dimensions{Width: width, Height: height * 2}
 			case syscall.SIGINT:
 				cancel()
+				return
 			}
 		}
-	}
+	}()
 
+	<-dims
 	os.Stdout.Write([]byte("\x1b[39;m"))
 	os.Stdout.Write([]byte("\x1b[49;m"))
+
+	return nil
+}
+
+func main() {
+	run()
 }
