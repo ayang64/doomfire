@@ -20,7 +20,7 @@ type Inferno struct {
 	height  int
 	grid    []int8
 	buffer  *bytes.Buffer
-	Renders int
+	renders int
 }
 
 type Dimensions struct {
@@ -112,7 +112,7 @@ func (i *Inferno) Render() {
 		}
 	}
 
-	i.Renders++
+	i.renders++
 
 	io.Copy(os.Stdout, i.buffer)
 	i.buffer.Reset()
