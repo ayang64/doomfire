@@ -14,11 +14,11 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-func fire(ctx context.Context, width int, height int) chan inferno.Dimensions {
+func fire(ctx context.Context) chan inferno.Dimensions {
 	rc := make(chan inferno.Dimensions)
 
 	go func() {
-		inf, err := inferno.NewFlame(inferno.WithDimentions(width, height))
+		inf, err := inferno.NewFlame(inferno.WithDimentions(0, 0))
 
 		if err != nil {
 			return
@@ -59,7 +59,7 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	dims := fire(ctx, width, height*2)
+	dims := fire(ctx)
 
 	dims <- inferno.Dimensions{Width: width, Height: height * 2}
 
