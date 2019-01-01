@@ -48,6 +48,7 @@ func MapColor(v int8) [3]uint8 {
 func (i *Flame) SetDimensions(d Dimensions) {
 	i.width = d.Width
 	i.height = d.Height
+	i.Init()
 }
 
 func (i *Flame) Init() {

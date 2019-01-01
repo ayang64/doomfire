@@ -24,8 +24,6 @@ func fire(ctx context.Context) chan inferno.Dimensions {
 			return
 		}
 
-		inf.Init()
-
 		for {
 			select {
 			case <-ctx.Done():
@@ -34,7 +32,6 @@ func fire(ctx context.Context) chan inferno.Dimensions {
 
 			case dims := <-rc:
 				inf.SetDimensions(dims)
-				inf.Init()
 
 			default:
 				// display grid
