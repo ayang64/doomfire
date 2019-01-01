@@ -52,6 +52,11 @@ func (i *Flame) SetDimensions(d Dimensions) {
 
 func (i *Flame) Init() {
 	// initialize our fire grid
+
+	// the bottom most row is the source of our "flame" and is set to the higest
+	// possible value on the grid.
+	//
+	// this value is "spread" upward.
 	i.grid = make([]int8, i.width*i.height)
 	for j := 0; j < i.width; j++ {
 		i.grid[((i.height-1)*i.width)+j] = 35
@@ -79,7 +84,7 @@ func (i *Flame) Spread() {
 			}
 
 			// sometimes the flames get a little more intense as they rise.
-			i.grid[dst] = i.grid[src] - int8(rand.Intn(7)-1)
+			i.grid[dst] = i.grid[src] - int8(rand.Intn(6)-1)
 
 			if i.grid[dst] > 35 {
 				i.grid[dst] = 35
