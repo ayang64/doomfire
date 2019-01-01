@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type Inferno struct {
+type Flame struct {
 	width   int
 	height  int
 	grid    []int8
@@ -41,12 +41,12 @@ func MapColor(v int8) (uint8, uint8, uint8) {
 	return cmap[v][0], cmap[v][1], cmap[v][2]
 }
 
-func (i *Inferno) SetDimensions(d Dimensions) {
+func (i *Flame) SetDimensions(d Dimensions) {
 	i.width = d.Width
 	i.height = d.Height
 }
 
-func (i *Inferno) Init() {
+func (i *Flame) Init() {
 	// initialize our fire grid
 	i.grid = make([]int8, i.width*i.height)
 	for j := 0; j < i.width; j++ {
@@ -54,7 +54,7 @@ func (i *Inferno) Init() {
 	}
 }
 
-func (i *Inferno) Spread() {
+func (i *Flame) Spread() {
 	for y := i.height - 1; y > 0; y-- {
 		for x := 0; x < i.width; x++ {
 
@@ -88,7 +88,7 @@ func (i *Inferno) Spread() {
 	}
 }
 
-func (i *Inferno) Render() {
+func (i *Flame) Render() {
 	i.buffer.WriteString("\x1b[0;0H")
 
 	for y := 0; y < i.height; y += 2 {
@@ -117,16 +117,16 @@ func (i *Inferno) Render() {
 	time.Sleep(100 * time.Millisecond)
 }
 
-func WithDimentions(width int, height int) func(*Inferno) error {
-	return func(i *Inferno) error {
+func WithDimentions(width int, height int) func(*Flame) error {
+	return func(i *Flame) error {
 		i.width = width
 		i.height = height
 		return nil
 	}
 }
 
-func New(opts ...func(*Inferno) error) (*Inferno, error) {
-	rc := Inferno{}
+func NewFlame(opts ...func(*Flame) error) (*Flame, error) {
+	rc := Flame{}
 
 	rc.buffer = &bytes.Buffer{}
 

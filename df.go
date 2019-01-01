@@ -18,7 +18,7 @@ func fire(ctx context.Context, width int, height int) chan inferno.Dimensions {
 	rc := make(chan inferno.Dimensions)
 
 	go func() {
-		inf, err := inferno.New(inferno.WithDimentions(width, height))
+		inf, err := inferno.NewFlame(inferno.WithDimentions(width, height))
 
 		if err != nil {
 			return
