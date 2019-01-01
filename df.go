@@ -8,13 +8,11 @@ import (
 	"syscall"
 
 	"github.com/ayang64/doomfire/inferno"
-
 	"golang.org/x/crypto/ssh/terminal"
 )
 
 func fire(ctx context.Context) chan inferno.Dimensions {
 	rc := make(chan inferno.Dimensions)
-
 	go func() {
 		inf, err := inferno.NewFlame(inferno.WithDimentions(0, 0))
 
@@ -40,7 +38,6 @@ func fire(ctx context.Context) chan inferno.Dimensions {
 			}
 		}
 	}()
-
 	return rc
 }
 
@@ -77,5 +74,7 @@ func run() error {
 }
 
 func main() {
-	run()
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
