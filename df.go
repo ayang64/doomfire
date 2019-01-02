@@ -43,8 +43,9 @@ func fire(ctx context.Context) chan inferno.Dimensions {
 
 func run() error {
 	width, height, err := terminal.GetSize(0)
+
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -53,20 +54,21 @@ func run() error {
 
 	sigs := make(chan os.Signal)
 	signal.Notify(sigs, syscall.SIGWINCH, syscall.SIGINT)
-	go func() {
-		for sig := range sigs {
-			switch sig {
-			case syscall.SIGWINCH:
-				width, height, _ := terminal.GetSize(0)
-				dims <- inferno.Dimensions{Width: width, Height: height * 2}
-			case syscall.SIGINT:
-				cancel()
-				return
-			}
+
+innerloop:
+	for sig := range sigs {
+		switch sig {
+		case syscall.SIGWINCH:
+			width, height, _ := terminal.GetSize(0)
+			dims <- inferno.Dimensions{Width: width, Height: height * 2}
+		case syscall.SIGINT:
+			cancel()
+			break innerloop
 		}
-	}()
+	}
 
 	<-dims
+
 	os.Stdout.Write([]byte("\x1b[39;m"))
 	os.Stdout.Write([]byte("\x1b[49;m"))
 

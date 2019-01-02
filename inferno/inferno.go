@@ -68,13 +68,12 @@ func (i *Flame) Init() {
 func (i *Flame) Spread() {
 	for y := i.height - 1; y > 0; y-- {
 		for x := 0; x < i.width; x++ {
-
 			src := (y * i.width) + x
 
 			// generate random number between [0, 6) and and subtract 3 from it.
 			// this biases the results to < 0 which shifts the direction of the
 			// flames to the left giving a wind effect.
-			dst := (src - i.width) + i.rand.Intn(6) - 3
+			dst := (src - i.width) + i.rand.Intn(6) - 2
 
 			// if destination is outside of the bounds of our display, skip it.
 			if start, end := (y-1)*i.width, y*i.width+i.width; dst < start || dst > end {
@@ -88,6 +87,7 @@ func (i *Flame) Spread() {
 			// sometimes the flames get a little more intense as they rise.
 			i.grid[dst] = i.grid[src] - int8(i.rand.Intn(6)-1)
 
+			// clip grid values to within our range.
 			if i.grid[dst] > 35 {
 				i.grid[dst] = 35
 			}
@@ -105,13 +105,11 @@ func (i *Flame) Render() {
 	prevbg, prevfg := [3]uint8{}, [3]uint8{}
 	for y := 0; y < i.height; y += 2 {
 		for x := 0; x < i.width; x++ {
-
 			// if necessary, change foreground color
 			if c := MapColor(i.grid[(y*i.width)+x]); c != prevfg {
 				i.buffer.WriteString(fmt.Sprintf("\x1b[38;2;%d;%d;%dm", c[0], c[1], c[2]))
 				prevfg = c
 			}
-
 			// if necessary, change background color
 			if c := MapColor(i.grid[(y*i.width)+x]); c != prevbg {
 				i.buffer.WriteString(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", c[0], c[1], c[2]))
