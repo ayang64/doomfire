@@ -111,11 +111,10 @@ func (i *Flame) Render() {
 				prevfg = c
 			}
 			// if necessary, change background color
-			if c := MapColor(i.grid[(y*i.width)+x]); c != prevbg {
+			if c := MapColor(i.grid[((y+1)*i.width)+x]); c != prevbg {
 				i.buffer.WriteString(fmt.Sprintf("\x1b[48;2;%d;%d;%dm", c[0], c[1], c[2]))
 				prevbg = c
 			}
-
 			i.buffer.WriteString("▀")
 		}
 	}
