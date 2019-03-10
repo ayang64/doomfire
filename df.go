@@ -12,6 +12,7 @@ import (
 )
 
 // comment
+// another comment
 func fire(ctx context.Context) chan inferno.Dimensions {
 	rc := make(chan inferno.Dimensions)
 	go func() {
