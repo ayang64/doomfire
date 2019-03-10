@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// comment
 func fire(ctx context.Context) chan inferno.Dimensions {
 	rc := make(chan inferno.Dimensions)
 	go func() {
